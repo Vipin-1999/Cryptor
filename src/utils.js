@@ -89,24 +89,18 @@ const specialCharacterArray = [
 const numberArray = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
 
 export const EncryptionAlgorithm = (message) => {
-  let quotient_array = [],
-    encrypted_message_word = [];
+  let encrypted_message_word = [];
 
   const wordset = alphabetArray.concat(numberArray);
-  console.log(wordset.length);
 
   message.split("").forEach((word, index) => {
     if (word !== " ") {
-      quotient_array.push(
-        parseInt((word.charCodeAt(0) + index) / wordset.length)
-      );
       encrypted_message_word.push(
         `${wordset[(word.charCodeAt(0) + index) % wordset.length]}${
-          alphabetArray[quotient_array[index]]
+          alphabetArray[parseInt((word.charCodeAt(0) + index) / wordset.length)]
         }`
       );
     } else {
-      quotient_array.push(-1);
       encrypted_message_word.push(
         `${specialCharacterArray[index % specialCharacterArray.length].replace(
           /[\s!"#$%&'()*+,-./:;<=>?@[]^_`{|}~]/g,
@@ -115,7 +109,6 @@ export const EncryptionAlgorithm = (message) => {
       );
     }
   });
-  console.log(quotient_array);
   encrypted_message_word = encrypted_message_word.join("");
   return encrypted_message_word;
 };

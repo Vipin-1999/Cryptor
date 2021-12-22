@@ -39,7 +39,7 @@ const Decryptor = () => {
     setDecryptedMessage(
       value === "string"
         ? DecryptionAlgorithm(message)
-        : DecryptionAlgorithm(message).slice(1, -1)
+        : DecryptionAlgorithm(message)
     );
   };
 
@@ -98,7 +98,7 @@ const Decryptor = () => {
               </FormGroup>
             </FormControl>
           </Box>
-          <Box sx={{ margin: "1rem 4rem" }}>
+          <Box sx={{ margin: "1rem" }}>
             <TextField
               variant='standard'
               label='Message'
@@ -106,6 +106,7 @@ const Decryptor = () => {
               onChange={(event) => setMessage(event.target.value)}
             />
           </Box>
+          {/* add animation to button on click and ecrypted message display box */}
           <Box sx={{ display: "flex", justifyContent: "center" }}>
             <Button
               variant='contained'
@@ -152,10 +153,7 @@ const Decryptor = () => {
                 letterSpacing: "0.06rem",
               }}
             >
-              {value !== "JSON"
-                ? decryptedMessage || "Decrypted Message will be displayed here"
-                : JSON.stringify(decryptedMessage) ||
-                  "Decrypted Message will be displayed here"}
+              {decryptedMessage || "Decrypted Message will be displayed here"}
             </Typography>
           </Box>
         </Card>

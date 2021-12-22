@@ -39,7 +39,10 @@ const Encryptor = () => {
     setEncryptedMessage(
       value === "string"
         ? EncryptionAlgorithm(message)
-        : JSON.stringify(EncryptionAlgorithm(message)).slice(1, -1)
+        : JSON.stringify(EncryptionAlgorithm(message.replace(/ /g, ""))).slice(
+            1,
+            -1
+          )
     );
   };
 
@@ -135,6 +138,7 @@ const Encryptor = () => {
             sx={{
               margin: "2rem auto",
               height: cardHeight - 160,
+              width: "90%",
               backgroundColor: "#fff",
               border: "1.5px solid #777",
               borderRadius: "2px",
@@ -146,6 +150,7 @@ const Encryptor = () => {
               variant='body1'
               sx={{
                 maxHeight: "100%",
+                width: "100%",
                 overflowY: "auto",
                 lineHeight: "1.5rem",
                 letterSpacing: "0.06rem",
