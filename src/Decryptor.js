@@ -13,7 +13,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { DecryptionAlgorithm } from "./utils";
+import axios from "axios";
 
 const Decryptor = () => {
   const [message, setMessage] = useState("");
@@ -36,11 +36,16 @@ const Decryptor = () => {
   }, []);
 
   const decryptData = () => {
-    setDecryptedMessage(
-      value === "string"
-        ? DecryptionAlgorithm(message)
-        : DecryptionAlgorithm(message)
-    );
+    axios
+      .post(
+        "https://us-central1-nextgencryptor.cloudfunctions.net/app/api/decrypt",
+        {
+          cipher: message,
+        }
+      )
+      .then((res) => {
+        setDecryptedMessage(res.data);
+      });
   };
 
   return (

@@ -88,10 +88,45 @@ const specialCharacterArray = [
 ];
 const numberArray = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
 
-export const EncryptionAlgorithm = (message) => {
+function generateWordSet() {
+  const created = alphabetArray.concat(numberArray);
+  var text = [],
+    encodedText = [],
+    possible = created.join("");
+
+  for (var i = 0; i < possible.length * 64; i++) {
+    const randomNumber = Math.floor(Math.random() * possible.length);
+    text.push(possible.charAt(randomNumber));
+    possible =
+      possible.slice(0, randomNumber) + possible.slice(randomNumber + 1);
+  }
+
+  text.forEach((char) => {
+    encodedText.push(char + text[Math.floor(Math.random() * text.length)]);
+  });
+
+  return { wordset: text, encodedWordSet: encodedText.join("") };
+}
+
+const decodeWordSet = (encryptedMessage) => {
+  var encodedWordSet = encryptedMessage.slice(0, 123);
+  var cipher = encryptedMessage.slice(124);
+  encodedWordSet = encodedWordSet.split("");
+  var decodedWordSet = [];
+
+  encodedWordSet.forEach((char, index) => {
+    if (index % 2 === 0) {
+      decodedWordSet.push(char);
+    }
+  });
+
+  return { wordset: decodedWordSet, encrypted_message_word: cipher };
+};
+
+const EncryptionAlgorithm = (message) => {
   let encrypted_message_word = [];
 
-  const wordset = alphabetArray.concat(numberArray);
+  const { wordset, encodedWordSet } = generateWordSet();
 
   message.split("").forEach((word, index) => {
     if (word !== " ") {
@@ -109,14 +144,14 @@ export const EncryptionAlgorithm = (message) => {
       );
     }
   });
-  encrypted_message_word = encrypted_message_word.join("");
+  encrypted_message_word = encodedWordSet + encrypted_message_word.join("");
   return encrypted_message_word;
 };
 
-export const DecryptionAlgorithm = (encrypted_message_word) => {
+const DecryptionAlgorithm = (encrypted_message) => {
   let decrypted_message_word = [];
 
-  const wordset = alphabetArray.concat(numberArray);
+  const { wordset, encrypted_message_word } = decodeWordSet(encrypted_message);
 
   encrypted_message_word.split("").forEach((character, index) => {
     if (index % 2 === 0) {
@@ -145,4 +180,9 @@ export const DecryptionAlgorithm = (encrypted_message_word) => {
   });
   decrypted_message_word = decrypted_message_word.join("");
   return decrypted_message_word;
+};
+
+module.exports = {
+  EncryptionAlgorithm: EncryptionAlgorithm,
+  DecryptionAlgorithm: DecryptionAlgorithm,
 };

@@ -13,7 +13,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { EncryptionAlgorithm } from "./utils";
+import axios from "axios";
 
 const Encryptor = () => {
   const [message, setMessage] = useState("");
@@ -36,14 +36,19 @@ const Encryptor = () => {
   }, []);
 
   const encryptData = () => {
-    setEncryptedMessage(
-      value === "string"
-        ? EncryptionAlgorithm(message)
-        : JSON.stringify(EncryptionAlgorithm(message.replace(/ /g, ""))).slice(
-            1,
-            -1
-          )
-    );
+    axios
+      .post(
+        "https://us-central1-nextgencryptor.cloudfunctions.net/app/api/encrypt",
+        {
+          plaintext:
+            value === "string"
+              ? message
+              : JSON.stringify(message.replace(/ /g, "")).slice(1, -1),
+        }
+      )
+      .then((res) => {
+        setEncryptedMessage(res.data);
+      });
   };
 
   return (
