@@ -1,70 +1,120 @@
-# Getting Started with Create React App
+# NextGenCryptor
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+NextGenCryptor is an interactive cryptor tool built with React and Material UI. It demonstrates a secure encryption and decryption mechanism where each encryption uses a **fresh, randomly generated key**. The key is automatically embedded within the ciphertext at a random position, ensuring that only the decryption algorithm can extract it to recover your original message. You do not need to provide a key!
 
-## Available Scripts
+This project doubles as interactive documentation. It includes detailed explanations, examples for both plain text and JSON formats, and live demo functionality.
 
-In the project directory, you can run:
+<!-- Add a disclaimer stating this is only for educational purposes -->
 
-### `npm start`
+## Features
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+- **Interactive Readme Style**: Documentation is rendered directly within the application using a custom markdown renderer.
+- **Secure Encryption**: Each encryption operation generates a new random key and embeds it in the ciphertext.
+- **Automated Decryption**: The decryption tool automatically extracts the embedded key to recover your message.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Installation
 
-### `npm test`
+### Prerequisites
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+- **Node.js** (v18 or above)
+- **npm** (v10 or above)
 
-### `npm run build`
+### Steps
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+1. **Clone the repository**
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+   ```bash
+   git clone https://github.com/Vipin-1999/Cryptor.git
+   ```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+2. **Navigate to the project directory**
 
-### `npm run eject`
+   ```bash
+   cd Cryptor
+   ```
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+3. **Install dependencies**
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+   Using npm:
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+   ```bash
+   npm install
+   ```
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+   or using yarn:
 
-## Learn More
+   ```bash
+   yarn install
+   ```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+4. **Configure environment variables**
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+   Create a `.env` file in the root directory and add:
 
-### Code Splitting
+   ```env
+   REACT_APP_BACKEND_URL=https://your-backend-url.com/api
+   ```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+   Replace `https://your-backend-url.com/api` with the the url where your firebase function is running.
 
-### Analyzing the Bundle Size
+5. **Start the development server**
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+   Using npm:
 
-### Making a Progressive Web App
+   ```bash
+   npm start
+   ```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+   or using yarn:
 
-### Advanced Configuration
+   ```bash
+   yarn start
+   ```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+6. **Open your browser**
 
-### Deployment
+   Navigate to [http://localhost:3000](http://localhost:3000) to view the application.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+## Project Structure
 
-### `npm run build` fails to minify
+```text
+nextgencryptor/
+├── public/
+│   ├── index.html
+│   └── cryptor-1.png            # Logo image
+├── src/
+│   ├── components/
+│   │   ├── CryptoTool.js        # Main tool component for encryption and decryption
+│   │   ├── Footer.js            # Footer component
+│   │   ├── Navbar.js            # Navbar component with theme toggle
+│   │   └── MarkdownRenderer.js  # Custom markdown renderer component
+│   ├── utils/
+│   │   └── axiosInstance.js     # Axios instance configuration
+│   ├── theme.js                 # Theme configuration
+│   ├── App.js                   # Main application component
+│   └── index.js                 # Entry point
+├── .env.local                   # Environment variables
+├── package.json
+└── README.md                    # This file
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+## Usage
+
+- **Encryption**:  
+  Navigate to the encryption tool. Enter your message, select the appropriate data type (String or JSON), and click **Encrypt**. A fresh random key will be generated and embedded within the ciphertext.
+
+- **Decryption**:  
+  Navigate to the decryption tool. Paste the ciphertext and click **Decrypt** to recover the original message.
+
+## Contributing
+
+Contributions are welcome! Feel free to fork this repository and submit a pull request with any improvements or bug fixes.
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
+## Acknowledgements
+
+- Built with [React](https://reactjs.org/) and [Material UI](https://mui.com/).
+- Inspired by modern cryptography practices and interactive documentation principles.

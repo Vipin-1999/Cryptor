@@ -6,11 +6,6 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #000;
-  background-image: url(/src/crypto.svg);
-  background-repeat: no-repeat;
-  /* background-color: #80d0c7; */
-  /* background: linear-gradient(to right bottom, #0093e9, #80d0c7); */
 }
 
 ::-moz-selection {

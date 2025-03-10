@@ -1,188 +1,190 @@
-const alphabetArray = [
-  "A",
-  "B",
-  "C",
-  "D",
-  "E",
-  "F",
-  "G",
-  "H",
-  "I",
-  "J",
-  "K",
-  "L",
-  "M",
-  "N",
-  "O",
-  "P",
-  "Q",
-  "R",
-  "S",
-  "T",
-  "U",
-  "V",
-  "W",
-  "X",
-  "Y",
-  "Z",
-  "a",
-  "b",
-  "c",
-  "d",
-  "e",
-  "f",
-  "g",
-  "h",
-  "i",
-  "j",
-  "k",
-  "l",
-  "m",
-  "n",
-  "o",
-  "p",
-  "q",
-  "r",
-  "s",
-  "t",
-  "u",
-  "v",
-  "w",
-  "x",
-  "y",
-  "z",
-];
-const specialCharacterArray = [
-  "!",
-  '"',
-  "#",
-  "$",
-  "%",
-  "&",
-  "'",
-  "(",
-  ")",
-  "*",
-  "+",
-  ",",
-  "-",
-  ".",
-  "/",
-  ":",
-  ";",
-  "<",
-  "=",
-  ">",
-  "?",
-  "@",
-  "[",
-  "\\",
-  "]",
-  "^",
-  "_",
-  "`",
-  "{",
-  "|",
-  "}",
-  "~",
-];
-const numberArray = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
+// utils.js
 
-function generateWordSet() {
-  const created = alphabetArray.concat(numberArray);
-  var text = [],
-    encodedText = [],
-    possible = created.join("");
-
-  for (var i = 0; i < possible.length * 64; i++) {
-    const randomNumber = Math.floor(Math.random() * possible.length);
-    text.push(possible.charAt(randomNumber));
-    possible =
-      possible.slice(0, randomNumber) + possible.slice(randomNumber + 1);
+/**
+ * Generates a random permutation of numbers 0..n-1 using Fisher-Yates shuffle.
+ * @param {number} n 
+ * @returns {number[]} Random permutation array.
+ */
+function generateRandomPermutation(n) {
+  const arr = Array.from({ length: n }, (_, i) => i);
+  for (let i = n - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
   }
-
-  text.forEach((char) => {
-    encodedText.push(char + text[Math.floor(Math.random() * text.length)]);
-  });
-
-  return { wordset: text, encodedWordSet: encodedText.join("") };
+  return arr;
 }
 
-const decodeWordSet = (encryptedMessage) => {
-  var encodedWordSet = encryptedMessage.slice(0, 123);
-  var cipher = encryptedMessage.slice(124);
-  encodedWordSet = encodedWordSet.split("");
-  var decodedWordSet = [];
+/**
+ * Converts an array of bytes to a hexadecimal string.
+ * @param {number[]} arr 
+ * @returns {string}
+ */
+function bytesToHex(arr) {
+  return arr.map(b => ('00' + b.toString(16)).slice(-2)).join('');
+}
 
-  encodedWordSet.forEach((char, index) => {
-    if (index % 2 === 0) {
-      decodedWordSet.push(char);
-    }
-  });
+/**
+ * Converts a hexadecimal string to an array of bytes.
+ * @param {string} hex 
+ * @returns {number[]}
+ */
+function hexToBytes(hex) {
+  const bytes = [];
+  for (let i = 0; i < hex.length; i += 2) {
+    bytes.push(parseInt(hex.substr(i, 2), 16));
+  }
+  return bytes;
+}
 
-  return { wordset: decodedWordSet, encrypted_message_word: cipher };
-};
+/**
+ * Generates an array of n random bytes (0-255).
+ * @param {number} n 
+ * @returns {number[]}
+ */
+function randomBytes(n) {
+  const bytes = [];
+  for (let i = 0; i < n; i++) {
+    bytes.push(Math.floor(Math.random() * 256));
+  }
+  return bytes;
+}
 
-const EncryptionAlgorithm = (message) => {
-  let encrypted_message_word = [];
+/**
+ * newEncryptionAlgorithm:
+ * Encrypts a message using a one-time pad and then interleaves each ciphertext-key pair
+ * nonlinearly based on a random permutation. Then, an outer layer is applied by XOR-ing
+ * the inner ciphertext (header + interleaved data) with a random 16-byte nonce.
+ *
+ * Inner encryption steps:
+ * 1. Generate a random key (one-time pad) of length M (message length).
+ * 2. Compute ciphertext bytes by XOR-ing each plaintext byte with the key.
+ * 3. Generate a random permutation r of indices [0, M-1].
+ * 4. Create an array Y of length 2*M. For each i (0 <= i < M), place:
+ *      - ciphertext[i] at position (2 * r[i])
+ *      - key[i] at position (2 * r[i] + 1)
+ * 5. Build a header:
+ *      - First 4 hex digits: M (message length, padded to 4 hex digits)
+ *      - Next, the permutation array r, each element encoded as 4 hex digits.
+ * 6. Let inner = header + hex(Y).
+ *
+ * Outer layer:
+ * 7. Generate a random 16-byte nonce.
+ * 8. Convert inner to bytes, then XOR each byte with nonce repeated cyclically.
+ * 9. Prepend the nonce (in hex, 32 hex digits) to the outer ciphertext.
+ *
+ * @param {string} message Plaintext to encrypt.
+ * @returns {string} The final encrypted message.
+ */
+function newEncryptionAlgorithm(message) {
+  const M = message.length;
+  const keyBytes = [];
+  const plaintextBytes = [];
+  const ciphertextBytes = [];
 
-  const { wordset, encodedWordSet } = generateWordSet();
+  // Generate key and plaintext byte array.
+  for (let i = 0; i < M; i++) {
+    plaintextBytes.push(message.charCodeAt(i));
+    keyBytes.push(Math.floor(Math.random() * 256));
+  }
+  // XOR to compute ciphertext bytes.
+  for (let i = 0; i < M; i++) {
+    ciphertextBytes.push(plaintextBytes[i] ^ keyBytes[i]);
+  }
 
-  message.split("").forEach((word, index) => {
-    if (word !== " ") {
-      encrypted_message_word.push(
-        `${wordset[(word.charCodeAt(0) + index) % wordset.length]}${
-          alphabetArray[parseInt((word.charCodeAt(0) + index) / wordset.length)]
-        }`
-      );
-    } else {
-      encrypted_message_word.push(
-        `${specialCharacterArray[index % specialCharacterArray.length].replace(
-          /[\s!"#$%&'()*+,-./:;<=>?@[]^_`{|}~]/g,
-          "\\$&"
-        )}${alphabetArray[index % alphabetArray.length]}`
-      );
-    }
-  });
-  encrypted_message_word = encodedWordSet + encrypted_message_word.join("");
-  return encrypted_message_word;
-};
+  // Generate a random permutation r of indices [0, M-1].
+  const permutation = generateRandomPermutation(M);
+  const totalLength = 2 * M;
+  const Y = new Array(totalLength);
+  // Place each ciphertext-key pair into Y at positions defined by the permutation.
+  for (let i = 0; i < M; i++) {
+    const pos = 2 * permutation[i];
+    Y[pos] = ciphertextBytes[i];
+    Y[pos + 1] = keyBytes[i];
+  }
+  const Yhex = bytesToHex(Y);
 
-const DecryptionAlgorithm = (encrypted_message) => {
-  let decrypted_message_word = [];
+  // Build header:
+  // - First 4 hex digits: message length M.
+  const Mhex = M.toString(16).padStart(4, '0');
+  // - Next, permutation array: each element as 4 hex digits.
+  const permHex = permutation.map(num => num.toString(16).padStart(4, '0')).join('');
+  const header = Mhex + permHex;
 
-  const { wordset, encrypted_message_word } = decodeWordSet(encrypted_message);
+  const inner = header + Yhex; // Inner ciphertext (hex string)
 
-  encrypted_message_word.split("").forEach((character, index) => {
-    if (index % 2 === 0) {
-      var format = /[ `!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?~]/;
-      if (
-        format.test(
-          encrypted_message_word.charAt(index) +
-            encrypted_message_word.charAt(index + 1)
-        )
-      ) {
-        decrypted_message_word.push(" ");
-      } else {
-        const getQuotient = alphabetArray.indexOf(
-          encrypted_message_word.charAt(index + 1)
-        );
-        decrypted_message_word.push(
-          String.fromCharCode(
-            wordset.indexOf(character) +
-              wordset.length * getQuotient -
-              index +
-              index / 2
-          )
-        );
-      }
-    }
-  });
-  decrypted_message_word = decrypted_message_word.join("");
-  return decrypted_message_word;
-};
+  // Outer layer: generate a random 16-byte nonce.
+  const nonce = randomBytes(16);
+  const nonceHex = bytesToHex(nonce);
+
+  // Convert inner hex string to bytes.
+  const innerBytes = hexToBytes(inner);
+  // XOR each byte with nonce repeated.
+  const outerBytes = innerBytes.map((b, i) => b ^ nonce[i % nonce.length]);
+  const outerHex = bytesToHex(outerBytes);
+
+  // Final output: nonceHex + outerHex.
+  return nonceHex + outerHex;
+}
+
+/**
+ * newDecryptionAlgorithm:
+ * Reverses the process of newEncryptionAlgorithm.
+ *
+ * Steps:
+ * 1. Extract the nonce from the first 32 hex characters (16 bytes).
+ * 2. XOR the remainder of the ciphertext with the nonce repeated to recover the inner ciphertext.
+ * 3. Parse the header from the inner ciphertext:
+ *      - First 4 hex digits: M (message length).
+ *      - Next M*4 hex digits: permutation array.
+ * 4. Convert the remaining hex string to array Y of length 2*M.
+ * 5. For each i from 0 to M-1, using permutation[i]:
+ *      - Retrieve ciphertext byte from Y at position (2 * permutation[i])
+ *      - Retrieve key byte from Y at position (2 * permutation[i] + 1)
+ * 6. XOR to recover the plaintext.
+ *
+ * @param {string} encryptedMessage The final encrypted message.
+ * @returns {string} The decrypted plaintext.
+ */
+function newDecryptionAlgorithm(encryptedMessage) {
+  // Extract nonce (first 32 hex characters = 16 bytes).
+  const nonceHex = encryptedMessage.slice(0, 32);
+  const nonce = hexToBytes(nonceHex);
+  const outerHex = encryptedMessage.slice(32);
+  const outerBytes = hexToBytes(outerHex);
+
+  // Recover inner ciphertext by XOR-ing with nonce repeated.
+  const innerBytes = outerBytes.map((b, i) => b ^ nonce[i % nonce.length]);
+  const innerHex = bytesToHex(innerBytes);
+
+  // Parse header:
+  // First 4 hex digits: message length.
+  const Mhex = innerHex.slice(0, 4);
+  const M = parseInt(Mhex, 16);
+  // Next M numbers (each 4 hex digits) are the permutation.
+  const permHexStr = innerHex.slice(4, 4 + M * 4);
+  const permutation = [];
+  for (let i = 0; i < M; i++) {
+    const numHex = permHexStr.slice(i * 4, i * 4 + 4);
+    permutation.push(parseInt(numHex, 16));
+  }
+  const headerLength = 4 + M * 4;
+  const Yhex = innerHex.slice(headerLength);
+  const Y = hexToBytes(Yhex);
+  if (Y.length !== 2 * M) {
+    throw new Error("Invalid encrypted message length.");
+  }
+
+  const plaintextChars = [];
+  for (let i = 0; i < M; i++) {
+    const pos = 2 * permutation[i];
+    const c = Y[pos];
+    const k = Y[pos + 1];
+    plaintextChars.push(String.fromCharCode(c ^ k));
+  }
+  return plaintextChars.join('');
+}
 
 module.exports = {
-  EncryptionAlgorithm: EncryptionAlgorithm,
-  DecryptionAlgorithm: DecryptionAlgorithm,
+  EncryptionAlgorithm: newEncryptionAlgorithm,
+  DecryptionAlgorithm: newDecryptionAlgorithm,
 };
