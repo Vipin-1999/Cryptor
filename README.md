@@ -4,7 +4,8 @@ NextGenCryptor is an interactive cryptor tool built with React and Material UI. 
 
 This project doubles as interactive documentation. It includes detailed explanations, examples for both plain text and JSON formats, and live demo functionality.
 
-<!-- Add a disclaimer stating this is only for educational purposes -->
+> ⚠️ **Disclaimer:**  
+> This project is for educational purposes only. It is designed to demonstrate cryptographic concepts and is not intended for production use or securing sensitive data. For real-world applications, please use industry-standard cryptographic libraries and protocols.
 
 ## Features
 
@@ -49,13 +50,13 @@ This project doubles as interactive documentation. It includes detailed explanat
 
 4. **Configure environment variables**
 
-   Create a `.env` file in the root directory and add:
+   Create a `.env.local` file in the root directory and add:
 
    ```env
    REACT_APP_BACKEND_URL=https://your-backend-url.com/api
    ```
 
-   Replace `https://your-backend-url.com/api` with the the url where your firebase function is running.
+   Replace `https://your-backend-url.com/api` with the URL where your backend (Firebase function) is running.
 
 5. **Start the development server**
 
